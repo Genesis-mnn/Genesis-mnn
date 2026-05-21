@@ -102,6 +102,9 @@ class MorphoNeuron(nn.Module):
         # 内部调制原浓度字典（外部通过 apply_modulator 设置）
         self._modulator_concentrations: Dict[str, float] = {}
 
+        # 强制跳过树突棘重塑的标志（用于睡眠状态控制）
+        self._force_skip_intrinsic_remodeling: bool = False
+
         # 演化历史哈希器（运行时注入，不可序列化）
         self._evolution_hasher = None
 
@@ -138,6 +141,12 @@ class MorphoNeuron(nn.Module):
         self.register_buffer('_axon_queue', torch.zeros(queue_size, batch_size, N, device=device))
         self.register_buffer('_axon_write_idx', torch.tensor(0, device=device, dtype=torch.long))
 
+        # 最近一次输出脉冲寄存器（供外部读取，例如 simulator 的睡眠分支）
+        self.register_buffer('_last_spike', torch.zeros(batch_size, N, device=device))
+
+        # 强制跳过树突棘重塑标志重置
+        self._force_skip_intrinsic_remodeling = False
+
         self._current_t = 0
 
         # 清空调制原浓度，避免跨批次状态残留
@@ -145,13 +154,16 @@ class MorphoNeuron(nn.Module):
 
     def forward(self,
                 x: Optional[torch.Tensor] = None,
-                modulator_concentrations: Optional[Dict[str, float]] = None) -> torch.Tensor:
+                modulator_concentrations: Optional[Dict[str, float]] = None,
+                skip_intrinsic_remodeling: bool = False) -> torch.Tensor:
         """执行一个时间步的完整多室更新，并返回轴突输出脉冲。
 
         参数:
             x: 每个树突棘的输入信号，形状 (batch, num_dendrites, num_neurons)。
                若为 None，表示零外部输入（用于验证公理四：存在先于任务）。
             modulator_concentrations: 可选的调制原浓度覆写字典。
+            skip_intrinsic_remodeling: 若为 True，则跳过 forward 末尾的树突棘动态重塑
+                                       （避免与睡眠期间的外部重塑模块冲突）。
         返回:
             out_spike: 经过轴突传导延迟后的输出脉冲，形状 (batch, num_neurons)。
         """
@@ -185,9 +197,13 @@ class MorphoNeuron(nn.Module):
         self._update_gene(spike)
 
         # ----- 5. 树突棘动态重塑（修复三） -----
-        self.update_dendritic_spines()
+        if not skip_intrinsic_remodeling and not self._force_skip_intrinsic_remodeling:
+            self.update_dendritic_spines()
 
         self._current_t += 1
+
+        # 保存本次输出脉冲，供外部读取（例如 simulator 的睡眠分支）
+        self._last_spike.copy_(out_spike.detach())
 
         return out_spike
 

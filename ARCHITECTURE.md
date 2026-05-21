@@ -1,6 +1,6 @@
 # Genesis 文件结构与功能模块总览
 
-## 一、已实现的核心模块（v0.2）
+## 一、已实现的核心模块（v0.3.0）
 
 | 文件 | 功能 | 核心类/函数 | 对应白皮书章节 |
 |---|---|---|---|
@@ -19,13 +19,15 @@
 | `hal.py` | 硬件抽象层 | CUDA后端、神经拟态后端接口 | 十 |
 | `utils.py` | 集群管理与工具 | `create_assembly`, `create_brain_region` 等 | 十 |
 | `life.py` | .life 持久化与演化哈希 | `GenesisNetwork`, `LifeSaver`, `LifeLoader`, `LifeRegistry` | 十 |
+| `sleep_wake_cycle.py` | 睡眠-觉醒周期与突触稳态 | `SleepWakeCycle`, `SynapticHomeostasis` | 三、五 |
+| `memory_replay.py` | 梦境重放与噪声注入 | `MemoryReplay` | 三、四、五 |
+| `dendritic_spine_sleep.py` | 树突棘睡眠重塑 | `DendriticSpineSleepRemodeling` | 三 |
 | `simulator.py` | 统一运行器 | `GenesisSimulator`, `create_default_simulator` | 十 |
 
 ## 二、理论预测模块（待实现）
 
 | 规划文件 | 功能 | 理论定位 | 对应白皮书章节 |
 |---|---|---|---|
-| `dream.py` | 梦境模式 | 必然推论 | 十六 |
 | `language.py` | 内部语言生成 | 合理扩展 | 十六 |
 | `morphology.py` | 形态分类学体系 | 合理扩展 | 十六 |
 
@@ -66,6 +68,9 @@ Genesis-mnn/
 │   ├── hal.py                  # 硬件抽象层（CPU / CUDA / 昇腾）及第三方适配规范
 │   ├── utils.py                # 拓扑与集群管理（Layer, Assembly 等）、数据加载工具
 │   ├── life.py                 # .life 文件持久化（保存 / 加载 / 演化哈希 / 防克隆）
+│   ├── sleep_wake_cycle.py     # 睡眠‑觉醒周期与突触稳态缩放
+│   ├── memory_replay.py        # 梦境重放与噪声注入
+│   ├── dendritic_spine_sleep.py# 树突棘睡眠重塑
 │   └── simulator.py            # 统一运行器（GenesisSimulator）与默认工厂函数
 ├── visualization/              # 高级可视化系统
 │   ├── __init__.py
@@ -102,6 +107,9 @@ Genesis-mnn/
 | `hal.py` | 硬件抽象层，定义统一后端接口 (`GenesisBackend`)，内置 CPU、CUDA、华为昇腾后端，提供第三方硬件注册机制 (`register_third_party_backend`)，实现设备无关的运行环境。 |
 | `utils.py` | 集群管理与拓扑构建：`Layer`、`Assembly`、`Column`、`BrainRegion` 数据结构；`connect` 函数支持全连接/随机/小世界规则；提供神经拟态数据集加载工具。 |
 | `life.py` | `.life` 文件持久化系统：`GenesisNetwork` 容器、`EvolutionHasher` 演化历史哈希、`LifeSaver` / `LifeLoader` 保存与加载，包含完整性校验与 `LifeRegistry` 防克隆机制。 |
+| `sleep_wake_cycle.py` | 驱动睡眠‑觉醒周期的动态切换，并在睡眠阶段执行突触稳态缩放（`SynapticHomeostasis`），维持网络整体平衡与能量效率。 |
+| `memory_replay.py` | 在梦境状态下重放清醒期的记忆轨迹，结合噪声注入（`MemoryReplay`）强化记忆巩固、泛化及防止过拟合。 |
+| `dendritic_spine_sleep.py` | 模拟树突棘在睡眠期间的生成、消除与体积调整（`DendriticSpineSleepRemodeling`），优化神经元的输入处理与突触可塑性。 |
 | `simulator.py` | 顶层统一运行器 (`GenesisSimulator`)，封装神经元、突触、胶质、调制场、神经发生与凋亡以及全局状态调度，提供 `step()` 仿真循环与 `create_default_simulator()` 便捷工厂函数。 |
 
 > **可视化系统**（`visualization/` 包）作为框架的可选扩展，提供数据管道 (`GenomeDataPipeline`)、本地数据服务 (`VisualizationServer`) 以及基于 PyQt 的实时 GUI 客户端（脑波涟漪视图、相位同步视图、长期记忆碎片视图），帮助开发者直观理解网络内部动力学。

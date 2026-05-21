@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="genesis-mnn",
-    version="0.2.0",
+    version="0.3.0",
     author="荀则瑞",
     license="GPL v3",
     description="Genesis: 第四代形态神经网络 (Morphic Neural Network) 构建框架",

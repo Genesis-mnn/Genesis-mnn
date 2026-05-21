@@ -1,8 +1,8 @@
 # genesis_core/__init__.py
 # Genesis 框架公共 API 聚合并入口
-# 遵循术语中立宪章，版本 0.2.0
+# 遵循术语中立宪章，版本 0.3.0
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 # =============================================================================
 # 基础核心 —— 形态神经元、共鸣突触、全局常量
@@ -221,6 +221,13 @@ from .neurogenesis import (
 )
 
 # =============================================================================
+# 睡眠-觉醒周期、记忆巩固与突触稳态 (v0.3)
+# =============================================================================
+from .sleep_wake_cycle import SleepWakeCycle, SynapticHomeostasis
+from .memory_replay import MemoryReplay
+from .dendritic_spine_sleep import DendriticSpineSleepRemodeling
+
+# =============================================================================
 # 公共 API 列表
 # =============================================================================
 __all__ = [
@@ -378,4 +385,10 @@ __all__ = [
     "NeurogenesisPool",
     "check_apoptosis",
     "NeurogenesisScheduler",
+
+    # sleep-wake cycle & memory (v0.3)
+    "SleepWakeCycle",
+    "SynapticHomeostasis",
+    "MemoryReplay",
+    "DendriticSpineSleepRemodeling",
 ]
